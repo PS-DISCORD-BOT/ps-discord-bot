@@ -9,5 +9,5 @@ def perform_request(url, headers={}):
 
     req = urllib.request.Request(url, headers=headers)
 
-    with urllib.request.urlopen(url) as resp:
+    with urllib.request.urlopen(req) as resp:
         return json.loads(resp.read().decode("utf-8"))
