@@ -38,6 +38,7 @@ def authorize():
     except StopIteration:
         abort(400, "PlayStation Network account not linked")
 
+    return {"user_id": user_id, "psn_name": conn.name}, 200
 
 # JSON error handlers
 for code in [400, 404, 405, 500]:
