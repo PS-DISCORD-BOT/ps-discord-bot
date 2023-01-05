@@ -41,6 +41,6 @@ def authorize():
 
 # JSON error handlers
 for code in [400, 404, 405, 500]:
-    app.register_error_handler(code, lambda error: {"error": str(error)}.code)
+    app.register_error_handler(code, lambda error: ({"error": str(error)}, code))
 
 app.run()
