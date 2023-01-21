@@ -1,5 +1,7 @@
-from utils import perform_request
+import json
 from dataclasses import dataclass
+
+from utils import perform_request
 
 API_BASE = "https://discord.com/api/v10"
 
@@ -22,8 +24,8 @@ class API:
         self.headers = {"Authorization": f"Bearer {token}"}
 
     def get_connections(self):
-        resp = perform_request(
-            API_BASE + "/users/@me/connections", self.headers
+        resp = json.loads(
+            perform_request(API_BASE + "/users/@me/connections", self.headers)
         )
 
         return [
@@ -31,6 +33,8 @@ class API:
         ]
 
     def get_user(self):
-        resp = perform_request(API_BASE + "/users/@me", self.headers)
+        resp = json.loads(
+            perform_request(API_BASE + "/users/@me", self.headers)
+        )
 
         return User(resp["id"])

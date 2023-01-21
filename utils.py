@@ -1,5 +1,4 @@
 import urllib.request
-import json
 
 
 def perform_request(url, headers={}):
@@ -10,4 +9,4 @@ def perform_request(url, headers={}):
     req = urllib.request.Request(url, headers=headers)
 
     with urllib.request.urlopen(req) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+        return resp.read().decode("utf-8")
