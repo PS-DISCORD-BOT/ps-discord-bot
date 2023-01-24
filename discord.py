@@ -81,3 +81,8 @@ class API:
         return self.perform(
             f"/guilds/{guild_id}/members/{user_id}/{role_id}", "PUT", ""
         )
+
+    def remove_guild_member_role(self, guild_id, user_id, role_id):
+        return self.perform(
+            f"/guilds/{guild_id}/members/{user_id}/{role_id}", "DELETE"
+        )
