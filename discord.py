@@ -19,6 +19,20 @@ class User:
     # ..., not required
 
 
+@dataclass
+class Guild:
+    id: str
+    name: str
+    # ...
+
+
+@dataclass
+class Role:
+    id: str
+    name: str
+    color: int
+
+
 class API:
     def __init__(self, token, *, bot):
         self.headers = {
@@ -40,3 +54,25 @@ class API:
         )
 
         return User(resp["id"])
+
+    def get_guilds(self):
+        resp = json.loads(
+            perform_request(API_BASE + "/users/@me/guilds", self.headers)
+        )
+
+        return [Guild(guild["id"], guild["name"]) for guild in resp]
+
+    def get_guild_roles(self, guild_id):
+        resp = json.loads(
+            perform_request(
+                API_BASE + f"/guilds/{guild_id}/roles", self.headers
+            )
+        )
+
+        return [Role(role["id"], role["name"], role["color"]) for role in resp]
+
+    def create_guild_role(self, guild_id):
+        raise NotImplementedError
+
+    def add_guild_member_role(self, guild_id, user_id, role_id):
+        raise NotImplementedError
