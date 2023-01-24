@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
 
-from utils import perform_request
+from utils import dict_cls, perform_request
 
 API_BASE = "https://discord.com/api/v10"
 
@@ -39,37 +39,28 @@ class API:
             "Authorization": f"Bot {token}" if bot else f"Bearer {token}"
         }
 
-    def get_connections(self):
-        resp = json.loads(
-            perform_request(API_BASE + "/users/@me/connections", self.headers)
-        )
+    def perform(self, endpoint):
+        return json.loads(perform_request(API_BASE + endpoint, self.headers))
 
-        return [
-            Connection(conn["type"], conn["id"], conn["name"]) for conn in resp
-        ]
+    def get_connections(self):
+        resp = self.perform("/users/@me/connections")
+
+        return [dict_cls(conn, Connection) for conn in resp]
 
     def get_user(self):
-        resp = json.loads(
-            perform_request(API_BASE + "/users/@me", self.headers)
-        )
+        resp = self.perform("/users/@me")
 
-        return User(resp["id"])
+        return dict_cls(resp, User)
 
     def get_guilds(self):
-        resp = json.loads(
-            perform_request(API_BASE + "/users/@me/guilds", self.headers)
-        )
+        resp = self.perform("/users/@me/guilds")
 
-        return [Guild(guild["id"], guild["name"]) for guild in resp]
+        return [dict_cls(guild, Guild) for guild in resp]
 
     def get_guild_roles(self, guild_id):
-        resp = json.loads(
-            perform_request(
-                API_BASE + f"/guilds/{guild_id}/roles", self.headers
-            )
-        )
+        resp = self.perform(f"/guilds/{guild_id}/roles")
 
-        return [Role(role["id"], role["name"], role["color"]) for role in resp]
+        return [dict_cls(role, Role) for role in resp]
 
     def create_guild_role(self, guild_id):
         raise NotImplementedError

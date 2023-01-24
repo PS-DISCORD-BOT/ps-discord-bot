@@ -1,4 +1,13 @@
 import urllib.request
+from dataclasses import fields
+
+
+# Convert a dict to a dataclass with common fields
+def dict_cls(d, cls):
+    field_names = set(f.name for f in fields(cls))
+    filtered_dict = {k: v for k, v in d.items() if k in field_names}
+
+    return cls(**filtered_dict)
 
 
 def perform_request(url, headers={}):
