@@ -1,5 +1,5 @@
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 from utils import dict_cls, perform_request
 
@@ -36,11 +36,19 @@ class Role:
 class API:
     def __init__(self, token, *, bot):
         self.headers = {
-            "Authorization": f"Bot {token}" if bot else f"Bearer {token}"
+            "Content-Type": "application/json",
+            "Authorization": f"Bot {token}" if bot else f"Bearer {token}",
         }
 
-    def perform(self, endpoint):
-        return json.loads(perform_request(API_BASE + endpoint, self.headers))
+    def perform(self, endpoint, method="GET", data=None):
+        return json.loads(
+            perform_request(
+                API_BASE + endpoint,
+                method,
+                self.headers,
+                json.dumps(data) if data else None,
+            )
+        )
 
     def get_connections(self):
         resp = self.perform("/users/@me/connections")
@@ -62,8 +70,12 @@ class API:
 
         return [dict_cls(role, Role) for role in resp]
 
-    def create_guild_role(self, guild_id):
-        raise NotImplementedError
+    def create_guild_role(self, guild_id, role):
+        resp = self.perform(f"/guilds/{guild_id}/roles", "POST", asdict(role))
+
+        return dict_cls(resp, Role)
 
     def add_guild_member_role(self, guild_id, user_id, role_id):
-        raise NotImplementedError
+        return self.perform(
+            f"/guilds/{guild_id}/members/{user_id}/{role_id}", "PUT", ""
+        )
