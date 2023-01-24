@@ -1,5 +1,5 @@
 import json
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 
 from utils import dict_cls, perform_request
 
@@ -70,8 +70,10 @@ class API:
 
         return [dict_cls(role, Role) for role in resp]
 
-    def create_guild_role(self, guild_id, role):
-        resp = self.perform(f"/guilds/{guild_id}/roles", "POST", asdict(role))
+    def create_guild_role(self, guild_id, name, color=0):
+        resp = self.perform(
+            f"/guilds/{guild_id}/roles", "POST", {"name": name, "color": color}
+        )
 
         return dict_cls(resp, Role)
 
