@@ -20,8 +20,10 @@ class User:
 
 
 class API:
-    def __init__(self, token):
-        self.headers = {"Authorization": f"Bearer {token}"}
+    def __init__(self, token, *, bot):
+        self.headers = {
+            "Authorization": f"Bot {token}" if bot else f"Bearer {token}"
+        }
 
     def get_connections(self):
         resp = json.loads(

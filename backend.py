@@ -27,7 +27,7 @@ def authorize():
     if (token := request.args.get("token")) is None:
         abort(400, "No token specified")
 
-    api = discord.API(token)
+    api = discord.API(token, bot=False)
 
     user_id = api.get_user().id
 
