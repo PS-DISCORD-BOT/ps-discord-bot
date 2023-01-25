@@ -1,3 +1,5 @@
+import logging
+
 import discord
 
 
@@ -48,16 +50,22 @@ class Roles:
             for target in targets:
                 if trophies >= target:
                     max_higher_than = target
+                    break
 
             if max_higher_than is None:
                 continue
+
+            role_id = self.roles_dict[max_higher_than]
 
             try:
                 self.update_user_roles(
                     roles_id,
                     guild_id,
                     user_id,
-                    self.roles_dict[max_higher_than],
+                    role_id,
                 )
-            except Exception as e:
-                ...
+            except Exception:
+                logging.warning(
+                    f"Failed to update role {role_id} for user {user_id} in guild {guild_id}",
+                    exc_info=sys.exc_info(),
+                )

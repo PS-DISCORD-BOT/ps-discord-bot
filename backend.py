@@ -43,10 +43,11 @@ def authorize():
     return {"user_id": user_id, "psn_name": conn.name}, 200
 
 
-# JSON error handlers
-for code in [400, 404, 405, 500]:
-    app.register_error_handler(
-        code, lambda error: ({"error": str(error)}, code)
-    )
+def run():
+    # JSON error handlers
+    for code in [400, 404, 405, 500]:
+        app.register_error_handler(
+            code, lambda error: ({"error": str(error)}, code)
+        )
 
-app.run()
+    app.run()
