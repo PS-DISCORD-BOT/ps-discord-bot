@@ -1,7 +1,6 @@
-import sqlite3
-
 from flask import Flask, abort, g, jsonify, request
 
+import backend.dao as dao
 import lib.discord as discord
 
 DB = ":memory:"
@@ -11,7 +10,7 @@ app = Flask(__name__)
 
 def get_db():
     if (db := getattr(g, "_database", None)) is None:
-        db = g._database = sqlite3.connect(DB)
+        db = g._database = dao.Database(DB)
 
     return db
 
