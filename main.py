@@ -1,8 +1,8 @@
 import json
 import logging
 
-import backend
-import scrape_worker
+import backend.flask_api as flask_api
+import backend.scrape_worker as scrape_worker
 
 CONFIG_FILE = "config.json"
 
@@ -30,7 +30,7 @@ def main():
 
             return
 
-    flask_thread = threading.Thread(target=backend.run)
+    flask_thread = threading.Thread(target=flask_api.run)
     flask_thread.start()
 
     scrape_worker.run(

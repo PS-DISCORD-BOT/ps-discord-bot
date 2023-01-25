@@ -2,7 +2,7 @@ import sqlite3
 
 from flask import Flask, abort, g, jsonify, request
 
-import discord
+import lib.discord as discord
 
 DB = ":memory:"
 

@@ -1,5 +1,5 @@
-import discord
-import roles
+import lib.discord as discord
+import lib.roles as roles
 
 
 def run(token, refresh_interval_hours, roles_threshold):

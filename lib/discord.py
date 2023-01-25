@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
 
-from utils import dict_cls, perform_request
+from lib.utils import dict_cls, perform_request
 
 API_BASE = "https://discord.com/api/v10"
 

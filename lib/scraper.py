@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from bs4 import BeautifulSoup
 
-from utils import perform_request
+from lib.utils import perform_request
 
 BASE_URL = "https://psnprofiles.com"
 

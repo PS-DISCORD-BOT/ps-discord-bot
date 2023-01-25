@@ -1,6 +1,6 @@
 import logging
 
-import discord
+import lib.discord as discord
 
 
 class Roles:
