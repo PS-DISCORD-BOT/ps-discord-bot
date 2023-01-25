@@ -2,16 +2,18 @@ import sqlite3
 from contextlib import contextmanager
 
 
-# Either commit or rollback the transaction
-@contextmanager
-def ensure(conn):
-    try:
-        yield conn
-    except Exception:
-        conn.rollback()
-        raise
-    else:
-        conn.commit()
+class Ensure:
+    def __init__(self, conn):
+        self.conn = conn
+
+    def __enter__(self):
+        return self.conn
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type:
+            self.conn.rollback()
+        else:
+            self.conn.commit()
 
 
 class Database:
@@ -24,7 +26,7 @@ class Database:
         self._create()
 
     def _create(self):
-        with ensure(self.conn):
+        with Ensure(self.conn):
             ...
 
     def close(self):
