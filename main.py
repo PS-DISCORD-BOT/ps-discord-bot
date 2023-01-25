@@ -10,9 +10,9 @@ CONFIG_DICT = {
     "token": "my-secret-token",
     "refresh_interval_hours": 12,
     "roles_threshold": {
-        1: "Plathunter - I",
-        10: "Plathunter - II",
-        50: "Plathunter - III",
+        "Plathunter - I": 1,
+        "Plathunter - II": 10,
+        "Plathunter - III": 50,
     },
 }
 

@@ -7,11 +7,17 @@ class Roles:
     def __init__(self, api: discord.API, roles_dict: dict):
         self.api = api
 
-        for key in roles_dict:
-            if not isinstance(key, int):
-                raise TypeError(f"Key {key} is not an int")
+        self.roles_dict = {}
 
-        self.roles_dict = roles_dict
+        # Convert "role": N to N: "role"
+        for key, value in roles_dict.items():
+            if not isinstance(value, int):
+                raise TypeError(f"Value {value} is not an int")
+
+            if value in self.roles_dict:
+                raise ValueError(f"Role {key} has duplicate threshold {value}")
+
+            self.roles_dict[value] = key
 
     def setup_roles(self, guild_id):
         # role name -> role ID
