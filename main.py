@@ -31,16 +31,17 @@ def main():
 
             return
 
-    flask_thread = threading.Thread(target=flask_api.run)
-    flask_thread.start()
-
-    scrape_worker.run(
-        config["token"],
-        config["refresh_interval_hours"],
-        config["roles_threshold"],
+    scraper_thread = threading.Thread(
+        target=scrape_worker.run,
+        args=(
+            config["token"],
+            config["refresh_interval_hours"],
+            config["roles_threshold"],
+        ),
     )
+    scraper_thread.start()
 
-    flask_thread.join()
+    flask_api.run()
 
 
 if __name__ == "__main__":
