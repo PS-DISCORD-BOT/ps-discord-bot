@@ -25,7 +25,7 @@ def main():
             config = json.loads(f.read())
     except FileNotFoundError:
         with open(CONFIG_FILE, "w") as f:
-            f.write(json.dumps(CONFIG_DICT))
+            f.write(json.dumps(CONFIG_DICT, indent=4))
             logging.info(f"Dumped default config to {CONFIG_FILE}")
 
             return
