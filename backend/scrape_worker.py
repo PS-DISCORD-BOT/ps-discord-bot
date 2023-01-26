@@ -1,3 +1,4 @@
+import sys
 from dataclasses import asdict
 from queue import Empty, Queue
 from time import sleep, time
@@ -13,7 +14,14 @@ def scrape(id_to_psn):
 
     for id, psn in id_to_psn.items():
         # Convert the dataclass to a dict: {"total": ..., "gold": ...}
-        id_to_trophies[id] = asdict(fetch_trophies(psn))
+        try:
+            id_to_trophies[id] = asdict(fetch_trophies(psn))
+        except Exception:
+            logging.critial(
+                f"Failed to scrape trophies for PSN user {psn}",
+                exc_info=sys.exc_info(),
+            )
+
         sleep(1)  # TODO is this enough for rate limiting?
 
     return id_to_trophies
@@ -33,7 +41,13 @@ def run(
 
     def sync(id_to_trophies):
         for guild in guilds:
-            roles_syncer.sync_roles(guild, id_to_trophies)
+            try:
+                roles_syncer.sync_roles(guild, id_to_trophies)
+            except Exception:
+                logging.critial(
+                    f"Failed to sync roles for guild {guild_id}",
+                    exc_info=sys.exc_info(),
+                )
 
     start_time = time()
 
