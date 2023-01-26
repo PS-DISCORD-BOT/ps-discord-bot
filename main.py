@@ -1,5 +1,6 @@
 import json
 import logging
+import signal
 import sys
 import threading
 from os import _exit
@@ -22,7 +23,9 @@ CONFIG_DICT = {
 }
 
 # Exit the program if any thread crashes
-def set_excepthooks():
+def set_signals_excepthooks():
+    signal.signal(signal.SIGINT, lambda sig, frame: _exit(1))
+
     orig_threading_hook, orig_sys_hook = threading.excepthook, sys.excepthook
 
     def threading_excepthook(args):
@@ -37,7 +40,7 @@ def set_excepthooks():
 
 
 def main():
-    set_excepthooks()
+    set_signals_excepthooks()
 
     logging.getLogger().setLevel(logging.INFO)
 

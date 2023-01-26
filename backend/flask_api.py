@@ -30,12 +30,6 @@ def get_db_queue():
         return get_db(), get_queue()
 
 
-@app.teardown_appcontext
-def close_connection(exc):
-    if db := getattr(g, "_database", None):
-        db.close()
-
-
 @app.route("/authorize", methods=["PUT"])
 def authorize():
     if (token := request.args.get("token")) is None:
