@@ -1,6 +1,8 @@
 import json
 import logging
+import sys
 import threading
+from os import _exit
 from queue import Queue
 
 import backend.flask_api as flask_api
@@ -19,8 +21,24 @@ CONFIG_DICT = {
     },
 }
 
+# Exit the program if any thread crashes
+def set_excepthooks():
+    orig_threading_hook, orig_sys_hook = threading.excepthook, sys.excepthook
+
+    def threading_excepthook(args):
+        orig_threading_hook(args)
+        _exit(1)
+
+    def sys_excepthook(*args):
+        orig_sys_hook(*args)
+        _exit(1)
+
+    threading.excepthook, sys.excepthook = threading_excepthook, sys_excepthook
+
 
 def main():
+    set_excepthooks()
+
     logging.getLogger().setLevel(logging.INFO)
 
     try:
