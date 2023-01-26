@@ -41,14 +41,17 @@ class API:
         }
 
     def perform(self, endpoint, method="GET", data=None):
-        return json.loads(
-            perform_request(
-                API_BASE + endpoint,
-                method,
-                self.headers,
-                json.dumps(data) if data else None,
-            )
+        res = perform_request(
+            API_BASE + endpoint,
+            method,
+            self.headers,
+            json.dumps(data) if data else None,
         )
+
+        if res == "":
+            return {}
+
+        return json.loads(res)
 
     def get_connections(self):
         resp = self.perform("/users/@me/connections")
@@ -79,10 +82,10 @@ class API:
 
     def add_guild_member_role(self, guild_id, user_id, role_id):
         return self.perform(
-            f"/guilds/{guild_id}/members/{user_id}/{role_id}", "PUT", ""
+            f"/guilds/{guild_id}/members/{user_id}/roles/{role_id}", "PUT", ""
         )
 
     def remove_guild_member_role(self, guild_id, user_id, role_id):
         return self.perform(
-            f"/guilds/{guild_id}/members/{user_id}/{role_id}", "DELETE"
+            f"/guilds/{guild_id}/members/{user_id}/roles/{role_id}", "DELETE"
         )

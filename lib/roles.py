@@ -1,23 +1,20 @@
 import logging
+import sys
 
 import lib.discord as discord
+
+TROPHY_CHECK = "platinum"
 
 
 class Roles:
     def __init__(self, api: discord.API, roles_dict: dict):
         self.api = api
 
-        self.roles_dict = {}
+        self.roles_dict = roles_dict
 
-        # Convert "role": N to N: "role"
-        for key, value in roles_dict.items():
+        for value in self.roles_dict.values():
             if not isinstance(value, int):
-                raise TypeError(f"Value {value} is not an int")
-
-            if value in self.roles_dict:
-                raise ValueError(f"Role {key} has duplicate threshold {value}")
-
-            self.roles_dict[value] = key
+                raise TypeError(f"Threshold value {value} not an int")
 
     def setup_roles(self, guild_id):
         # role name -> role ID
@@ -33,6 +30,7 @@ class Roles:
         missing_roles = required_roles - set(roles_id.keys())
 
         for role in missing_roles:
+            logging.info(f"Creating role {role} in guild {guild_id}")
             roles_id[role] = self.api.create_guild_role(guild_id, role).id
 
         return roles_id
@@ -42,36 +40,36 @@ class Roles:
 
         for role, role_id in roles_id.items():
             if role != role_name:
+                logging.info(
+                    f"Removing role {role} from user {user_id} in guild {guild_id}"
+                )
                 self.api.remove_guild_member_role(guild_id, user_id, role_id)
 
     def sync_roles(self, guild_id, id_to_trophies):
         roles_id = self.setup_roles(guild_id)
 
-        # 50, 10, 1, ...
-        targets = sorted(self.roles_dict.keys())[::-1]
+        # {"role2": 50, "role1": 10, ...}
+        roles_dict_sorted = dict(
+            sorted(self.roles_dict.items(), key=lambda item: item[1])[::-1]
+        )
 
         for user_id, trophies in id_to_trophies.items():
             max_higher_than = None
 
-            for target in targets:
-                if trophies >= target:
-                    max_higher_than = target
+            for name, target in roles_dict_sorted.items():
+                if trophies[TROPHY_CHECK] >= target:
+                    max_higher_than = name
                     break
 
             if max_higher_than is None:
                 continue
 
-            role_id = self.roles_dict[max_higher_than]
-
             try:
                 self.update_user_roles(
-                    roles_id,
-                    guild_id,
-                    user_id,
-                    role_id,
+                    roles_id, guild_id, user_id, max_higher_than
                 )
             except Exception:
                 logging.warning(
-                    f"Failed to update role {role_id} for user {user_id} in guild {guild_id}",
+                    f"Failed to update role {max_higher_than} for user {user_id} in guild {guild_id}",
                     exc_info=sys.exc_info(),
                 )

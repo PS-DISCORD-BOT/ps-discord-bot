@@ -50,7 +50,7 @@ def run(
                 roles_syncer.sync_roles(guild, id_to_trophies)
             except Exception:
                 logging.critical(
-                    f"Failed to sync roles for guild {guild_id}",
+                    f"Failed to sync roles for guild {guild}",
                     exc_info=sys.exc_info(),
                 )
 
