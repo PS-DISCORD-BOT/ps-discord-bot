@@ -41,18 +41,14 @@ class Database:
         with self.ensure:
             self.cur.execute(
                 "CREATE TABLE IF NOT EXISTS Users"
-                "(discord_id TEXT UNIQUE NOT NULL PRIMARY KEY, psn_id TEXT NOT NULL)"
-            )
-
-            self.cur.execute(
-                "CREATE TABLE IF NOT EXISTS Trophies"
-                "(discord_id FOREIGN KEY, total INT, platinum INT, gold INT, silver INT, bronze INT)"
+                "(discord_id TEXT UNIQUE NOT NULL PRIMARY KEY, psn_id TEXT NOT NULL,"
+                "total INT, platinum INT, gold INT, silver INT, bronze INT)"
             )
 
     def set_id_to_psn(self, discord_id, psn_id):
         with self.ensure:
             self.cur.execute(
-                "INSERT OR REPLACE INTO Users VALUES((?), (?))",
+                "INSERT OR REPLACE INTO Users (discord_id, psn_id) VALUES((?), (?))",
                 discord_id,
                 psn_id,
             )
@@ -70,7 +66,7 @@ class Database:
         with self.ensure:
             for id, trophies in id_to_trophies.items():
                 self.cur.execute(
-                    "UPDATE Trophies SET total = (?), platinum = (?), gold = (?), silver = (?), bronze = (?)"
+                    "UPDATE Users SET total = (?), platinum = (?), gold = (?), silver = (?), bronze = (?)"
                     "WHERE discord_id = (?)",
                     (
                         trophies["total"],
