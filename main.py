@@ -51,6 +51,8 @@ def main():
 
             return
 
+    db, queue = flask_api.get_db_queue()
+
     scraper_thread = threading.Thread(
         target=scrape_worker.run,
         args=(
@@ -58,9 +60,9 @@ def main():
             config["refresh_interval_hours"],
             config["roles_threshold"],
             config["guilds"],
-            flask_api.get_queue(),
-            flask_api.get_db().get_id_to_psn_batch,
-            flask_api.get_db().set_id_to_trophies_batch,
+            queue,
+            db.get_id_to_psn_batch,
+            db.set_id_to_trophies_batch,
         ),
     )
     scraper_thread.start()

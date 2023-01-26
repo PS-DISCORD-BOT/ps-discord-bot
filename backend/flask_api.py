@@ -24,6 +24,12 @@ def get_queue():
     return queue
 
 
+# For external use
+def get_db_queue():
+    with app.app_context():
+        return get_db(), get_queue()
+
+
 @app.teardown_appcontext
 def close_connection(exc):
     if db := getattr(g, "_database", None):
