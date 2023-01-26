@@ -1,3 +1,4 @@
+import logging
 import sys
 from dataclasses import asdict
 from queue import Empty, Queue
@@ -13,11 +14,13 @@ def scrape(id_to_psn):
     id_to_trophies = {}
 
     for id, psn in id_to_psn.items():
+        logging.info(f"Scraping trophies for PSN user {psn}")
+
         # Convert the dataclass to a dict: {"total": ..., "gold": ...}
         try:
             id_to_trophies[id] = asdict(fetch_trophies(psn))
         except Exception:
-            logging.critial(
+            logging.critical(
                 f"Failed to scrape trophies for PSN user {psn}",
                 exc_info=sys.exc_info(),
             )
@@ -41,10 +44,12 @@ def run(
 
     def sync(id_to_trophies):
         for guild in guilds:
+            logging.info(f"Syncing roles for guild {guild}")
+
             try:
                 roles_syncer.sync_roles(guild, id_to_trophies)
             except Exception:
-                logging.critial(
+                logging.critical(
                     f"Failed to sync roles for guild {guild_id}",
                     exc_info=sys.exc_info(),
                 )

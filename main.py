@@ -8,6 +8,7 @@ from queue import Queue
 
 import backend.flask_api as flask_api
 import backend.scrape_worker as scrape_worker
+from backend.shared_globals import get_db, get_queue
 
 CONFIG_FILE = "config.json"
 
@@ -54,8 +55,6 @@ def main():
 
             return
 
-    db, queue = flask_api.get_db_queue()
-
     scraper_thread = threading.Thread(
         target=scrape_worker.run,
         args=(
@@ -63,9 +62,9 @@ def main():
             config["refresh_interval_hours"],
             config["roles_threshold"],
             config["guilds"],
-            queue,
-            db.get_id_to_psn_batch,
-            db.set_id_to_trophies_batch,
+            get_queue(),
+            get_db().get_id_to_psn_batch,
+            get_db().set_id_to_trophies_batch,
         ),
     )
     scraper_thread.start()

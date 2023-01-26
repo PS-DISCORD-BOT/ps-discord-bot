@@ -49,8 +49,10 @@ class Database:
         with self.ensure:
             self.cur.execute(
                 "INSERT OR REPLACE INTO Users (discord_id, psn_id) VALUES((?), (?))",
-                discord_id,
-                psn_id,
+                (
+                    discord_id,
+                    psn_id,
+                ),
             )
 
     def get_id_to_psn_batch(self):

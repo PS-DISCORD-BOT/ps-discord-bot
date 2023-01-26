@@ -1,33 +1,9 @@
-from queue import Queue
-
 from flask import Flask, abort, g, jsonify, request
 
-import backend.dao as dao
 import lib.discord as discord
-
-DB = ":memory:"
+from backend.shared_globals import get_db, get_queue
 
 app = Flask(__name__)
-
-
-def get_db():
-    if (db := getattr(g, "_database", None)) is None:
-        db = g._database = dao.Database(DB)
-
-    return db
-
-
-def get_queue():
-    if (queue := getattr(g, "_queue", None)) is None:
-        queue = g._queue = Queue()
-
-    return queue
-
-
-# For external use
-def get_db_queue():
-    with app.app_context():
-        return get_db(), get_queue()
 
 
 @app.route("/authorize", methods=["PUT"])
