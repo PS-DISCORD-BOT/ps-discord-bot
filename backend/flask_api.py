@@ -1,3 +1,5 @@
+from queue import Queue
+
 from flask import Flask, abort, g, jsonify, request
 
 import backend.dao as dao
@@ -13,6 +15,13 @@ def get_db():
         db = g._database = dao.Database(DB)
 
     return db
+
+
+def get_queue():
+    if (queue := getattr(g, "_queue", None)) is None:
+        queue = g._queue = Queue()
+
+    return queue
 
 
 @app.teardown_appcontext

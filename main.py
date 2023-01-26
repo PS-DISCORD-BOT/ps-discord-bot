@@ -1,6 +1,7 @@
 import json
 import logging
 import threading
+from queue import Queue
 
 import backend.flask_api as flask_api
 import backend.scrape_worker as scrape_worker
@@ -9,6 +10,7 @@ CONFIG_FILE = "config.json"
 
 CONFIG_DICT = {
     "token": "my-secret-token",
+    "guilds": [],
     "refresh_interval_hours": 12,
     "roles_threshold": {
         "Plathunter - I": 1,
@@ -37,6 +39,10 @@ def main():
             config["token"],
             config["refresh_interval_hours"],
             config["roles_threshold"],
+            config["guilds"],
+            flask_api.get_queue(),
+            flask_api.get_db().get_id_to_psn_batch,
+            flask_api.get_db().set_id_to_trophies_batch,
         ),
     )
     scraper_thread.start()
