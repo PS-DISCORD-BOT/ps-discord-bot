@@ -48,6 +48,9 @@ def authorize():
     except StopIteration:
         abort(400, "PlayStation Network account not linked")
 
+    get_db().set_id_to_psn(user_id, conn.name)
+    get_queue().put((user_id, conn.name))
+
     return {"user_id": user_id, "psn_name": conn.name}, 200
 
 
