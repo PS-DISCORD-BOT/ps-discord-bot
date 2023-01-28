@@ -80,6 +80,16 @@ class Database:
                     ),
                 )
 
+    def get_id_to_psn(self, discord_id):
+        with self.ensure:
+            self.cur.execute(
+                "SELECT psn_id FROM Users WHERE discord_id = (?)",
+                (discord_id,),
+            )
+
+            if result := self.cur.fetchone():
+                return result["psn_id"]
+
     def get_leaderboard(self):
         with self.ensure:
             self.cur.execute(

@@ -27,7 +27,20 @@ def authorize():
     get_db().set_id_to_psn(user_id, conn.name)
     get_queue().put((user_id, conn.name))
 
-    return {"user_id": user_id, "psn_name": conn.name}, 200
+    return {"user_id": user_id, "psn_name": conn.name}
+
+
+@app.route("/refresh", methods=["GET"])
+def refresh():
+    if (discord_id := request.args.get("discord_id")) is None:
+        abort(400, "No ID specified")
+
+    if (psn_id := get_db().get_id_to_psn(discord_id)) is None:
+        abort(400, f"No PSN ID found for Discord ID {discord_id}")
+
+    get_queue().put((discord_id, psn_id))
+
+    return {}
 
 
 @app.route("/leaderboard", methods=["GET"])
