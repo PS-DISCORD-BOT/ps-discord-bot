@@ -80,5 +80,18 @@ class Database:
                     ),
                 )
 
+    def get_leaderboard(self):
+        with self.ensure:
+            self.cur.execute(
+                "SELECT discord_id, total, platinum, gold, silver, bronze FROM Users ORDER BY total"
+            )
+
+            results = []
+
+            for result in self.cur.fetchall():
+                results.append({k: result[k] for k in result.keys()})
+
+            return results
+
     def close(self):
         self.ensure.close()

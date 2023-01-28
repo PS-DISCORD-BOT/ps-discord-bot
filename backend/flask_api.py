@@ -30,6 +30,11 @@ def authorize():
     return {"user_id": user_id, "psn_name": conn.name}, 200
 
 
+@app.route("/leaderboard", methods=["GET"])
+def leaderboard():
+    return get_db().get_leaderboard()
+
+
 def run():
     # JSON error handlers
     for code in [400, 404, 405, 500]:
