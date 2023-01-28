@@ -2,7 +2,7 @@ from queue import Queue
 
 from backend.dao import Database
 
-DB = ":memory:"
+DB = "database.db"
 
 queue = Queue()
 db = Database(DB)
