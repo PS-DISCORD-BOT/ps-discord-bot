@@ -30,7 +30,7 @@ def authorize():
     return {"user_id": user_id, "psn_name": conn.name}
 
 
-@app.route("/refresh", methods=["GET"])
+@app.route("/refresh", methods=["POST"])
 def refresh():
     if (discord_id := request.args.get("discord_id")) is None:
         abort(400, "No ID specified")
@@ -40,7 +40,7 @@ def refresh():
 
     get_queue().put((discord_id, psn_id))
 
-    return {}
+    return {}, 202
 
 
 @app.route("/leaderboard", methods=["GET"])
