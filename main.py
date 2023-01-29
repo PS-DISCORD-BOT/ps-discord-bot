@@ -15,6 +15,7 @@ CONFIG_FILE = "config.json"
 CONFIG_DICT = {
     "token": "my-secret-token",
     "public_key": "my-secret-key",
+    "application_id": "my-application-id",
     "authorization_url": "https://localhost:443",
     "guilds": [],
     "refresh_interval_hours": 12,

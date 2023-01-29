@@ -99,3 +99,8 @@ class API:
         return self.perform(
             f"/guilds/{guild_id}/members/{user_id}/roles/{role_id}", "DELETE"
         )
+
+    def create_slash_command(self, application_id, data):
+        return self.perform(
+            f"/applications/{application_id}/commands", "POST", data
+        )
