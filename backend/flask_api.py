@@ -1,7 +1,8 @@
+from functools import wraps
+
 from flask import Flask, abort, g, jsonify, request
 from nacl.exceptions import BadSignatureError
 from nacl.signing import VerifyKey
-from functools import wraps
 
 import lib.discord as discord
 from backend.shared_globals import get_db, get_queue
@@ -56,13 +57,14 @@ def authorize():
     return {"user_id": user_id, "psn_name": conn.name}
 
 
-def execute_cmd_json(cmd_data):
-    user_id = cmd_data["target_id"]
+def execute_cmd_json(cmd_data, member_data):
     cmd = cmd_data["name"]
+    user_id = member_data["user"]["id"]
 
     match cmd:
         case "authorize":
             return {
+                "content": "**NOTE**: You must first enlist your account on https://psnprofiles.com by entering your name and hitting **Update User**. The following link can then be used to authorize with the bot:",
                 "components": [
                     {
                         "type": 1,  # Action bar
@@ -75,10 +77,10 @@ def execute_cmd_json(cmd_data):
                             }
                         ],
                     }
-                ]
+                ],
             }
         case "refresh":
-            if (psn_id := get_db().get_id_to_psn(discord_id)) is None:
+            if (psn_id := get_db().get_id_to_psn(user_id)) is None:
                 return {
                     "content": "It seems you haven't authorized your account yet, try using the /authorize command first!"
                 }
@@ -87,7 +89,7 @@ def execute_cmd_json(cmd_data):
             tasks_left = get_queue().unfinished_tasks
 
             return {
-                "content": f"Queued PSN ID {psn_id} for updating, {tasks_left} task(s) pending in queue"
+                "content": f"Queued PSN ID **{psn_id}** for updating, {tasks_left} task(s) pending in queue"
             }
         case "leaderboard":
             leaderboard = get_db().get_leaderboard()
@@ -104,7 +106,9 @@ def slash_command():
         case discord.InteractionType.PING:
             return {"type": discord.InteractionCallbackType.PONG}
         case discord.InteractionType.APPLICATION_COMMAND:
-            data = execute_cmd_json(request.json["data"])
+            data = execute_cmd_json(
+                request.json["data"], request.json["member"]
+            )
 
             # Disable any mentions
             data["allowed_mentions"] = {"parse": []}
