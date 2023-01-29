@@ -59,6 +59,8 @@ def run(
     while True:
         try:
             instant_id, instant_psn = instant_update_queue.get(block=False)
+            instant_update_queue.task_done()
+
             id_to_trophies = scrape({instant_id: instant_psn})
 
             id_to_trophies_batch_set(id_to_trophies)

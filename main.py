@@ -14,6 +14,8 @@ CONFIG_FILE = "config.json"
 
 CONFIG_DICT = {
     "token": "my-secret-token",
+    "public_key": "my-secret-key",
+    "authorization_url": "https://localhost:443",
     "guilds": [],
     "refresh_interval_hours": 12,
     "roles_threshold": {
@@ -69,7 +71,7 @@ def main():
     )
     scraper_thread.start()
 
-    flask_api.run()
+    flask_api.run(config["public_key"], config["authorization_url"])
 
 
 if __name__ == "__main__":

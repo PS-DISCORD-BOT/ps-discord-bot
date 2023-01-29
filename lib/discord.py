@@ -6,6 +6,16 @@ from lib.utils import dict_cls, perform_request
 API_BASE = "https://discord.com/api/v10"
 
 
+class InteractionType:
+    PING = 1
+    APPLICATION_COMMAND = 2
+
+
+class InteractionCallbackType:
+    PONG = 1
+    CHANNEL_MESSAGE_WITH_SOURCE = 4
+
+
 @dataclass
 class Connection:
     type: str
