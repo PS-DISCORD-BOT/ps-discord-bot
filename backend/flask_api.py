@@ -32,31 +32,6 @@ def validate_discord_request(func, *args, **kwargs):
     return inner
 
 
-# This endpoint is called outside the context of discord slash commands
-@app.route("/authorize", methods=["PUT"])
-def authorize():
-    if (token := request.args.get("token")) is None:
-        abort(400, "No token specified")
-
-    api = discord.API(token, bot=False)
-
-    user_id = api.get_user().id
-
-    try:
-        conn = next(
-            filter(
-                lambda conn: conn.type == "playstation", api.get_connections()
-            )
-        )
-    except StopIteration:
-        abort(400, "PlayStation Network account not linked")
-
-    get_db().set_id_to_psn(user_id, conn.name)
-    get_queue().put((user_id, conn.name))
-
-    return {"user_id": user_id, "psn_name": conn.name}
-
-
 def execute_cmd_json(cmd_data, member_data):
     cmd = cmd_data["name"]
     user_id = member_data["user"]["id"]
@@ -117,6 +92,31 @@ def slash_command():
                 "type": discord.InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
                 "data": data,
             }
+
+
+# This endpoint is called outside the context of discord slash commands
+@app.route("/authorize", methods=["PUT"])
+def authorize():
+    if (token := request.args.get("token")) is None:
+        abort(400, "No token specified")
+
+    api = discord.API(token, bot=False)
+
+    user_id = api.get_user().id
+
+    try:
+        conn = next(
+            filter(
+                lambda conn: conn.type == "playstation", api.get_connections()
+            )
+        )
+    except StopIteration:
+        abort(400, "PlayStation Network account not linked")
+
+    get_db().set_id_to_psn(user_id, conn.name)
+    get_queue().put((user_id, conn.name))
+
+    return {"user_id": user_id, "psn_name": conn.name}
 
 
 def run(public_key, auth_url):
