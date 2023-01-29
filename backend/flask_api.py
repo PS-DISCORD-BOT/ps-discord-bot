@@ -1,6 +1,6 @@
 from functools import wraps
 
-from flask import Flask, abort, g, jsonify, request
+from flask import Flask, Response, abort, g, jsonify, request
 from nacl.exceptions import BadSignatureError
 from nacl.signing import VerifyKey
 
@@ -8,6 +8,12 @@ import lib.discord as discord
 from backend.shared_globals import get_db, get_queue
 
 app = Flask(__name__)
+
+CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "PUT",
+    "Access-Control-Allow-Headers": "Content-Type",
+}
 
 # https://discord.com/developers/docs/interactions/receiving-and-responding#security-and-authorization
 def validate_discord_request(func, *args, **kwargs):
@@ -95,8 +101,12 @@ def slash_command():
 
 
 # This endpoint is called outside the context of discord slash commands
-@app.route("/authorize", methods=["PUT"])
+@app.route("/authorize", methods=["PUT", "OPTIONS"])
 def authorize():
+    # CORS stuff for frontend
+    if request.method == "OPTIONS":
+        return {}, 200, CORS_HEADERS
+
     if (token := request.args.get("token")) is None:
         abort(400, "No token specified")
 
@@ -116,7 +126,7 @@ def authorize():
     get_db().set_id_to_psn(user_id, conn.name)
     get_queue().put((user_id, conn.name))
 
-    return {"user_id": user_id, "psn_name": conn.name}
+    return {"user_id": user_id, "psn_name": conn.name}, 200, CORS_HEADERS
 
 
 def run(public_key, auth_url):
