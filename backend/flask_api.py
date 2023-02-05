@@ -34,6 +34,14 @@ RANK_REPRESENTATION = {
     10: ":keycap_ten:",
 }
 
+TROPHY_REPRESENTATION = {
+    "platinum": ":trophy:",
+    "gold": ":first_place:",
+    "silver": ":second_place:",
+    "bronze": ":third_place:",
+}
+
+
 # https://discord.com/developers/docs/interactions/receiving-and-responding#security-and-authorization
 def validate_discord_request(func, *args, **kwargs):
     @wraps(func)
@@ -55,6 +63,16 @@ def validate_discord_request(func, *args, **kwargs):
         return func(*args, **kwargs)
 
     return inner
+
+
+def rank_users(users):
+    return sorted(users, key=lambda item: item[TROPHY_CHECK], reverse=True)
+
+
+def find_and_rank(users, discord_id):
+    for index, user in enumerate(rank_users(users)):
+        if user["discord_id"] == discord_id:
+            return index + 1, user
 
 
 def execute_cmd_json(cmd_data, member_data):
@@ -91,12 +109,34 @@ def execute_cmd_json(cmd_data, member_data):
             return {
                 "content": f"Queued PSN ID **{psn_id}** for updating, {tasks_left} task(s) pending in queue"
             }
+        case "rank":
+            if (
+                rank_user := find_and_rank(get_db().get_all(), user_id)
+            ) is None:
+                return {
+                    "content": "No ranks found, try using the /authorize or /refresh commands."
+                }
+
+            rank, user = rank_user
+
+            discord_id = user["discord_id"]
+
+            embed = {
+                "title": f"(#{rank}) <@{discord_id}>'s Trophies",
+                "type": "rich",
+                "color": TROPHY_COLOR_CODE,
+                "fields": [],
+            }
+
+            for trophy, representation in TROPHY_REPRESENTATION.items():
+                value = (
+                    f"{representation} **{trophy.title()}** `{user[trophy]}`"
+                )
+                embed["fields"].append({"name": "", "value": value})
+
+            return {"embeds": [embed]}
         case "leaderboard":
-            descending_users = sorted(
-                get_db().get_all(),
-                key=lambda item: item[TROPHY_CHECK],
-                reverse=True,
-            )
+            descending_users = rank_users(get_db().get_all())
 
             embed = {
                 "title": f"{TROPHY_CHECK.title()} Trophy Leaderboard",

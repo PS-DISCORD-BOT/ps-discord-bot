@@ -27,6 +27,7 @@ CONFIG_DICT = {
     },
 }
 
+
 # Exit the program if any thread crashes
 def set_signals_excepthooks():
     signal.signal(signal.SIGINT, lambda sig, frame: _exit(1))
