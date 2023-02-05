@@ -90,10 +90,10 @@ class Database:
             if result := self.cur.fetchone():
                 return result["psn_id"]
 
-    def get_leaderboard(self):
+    def get_all(self):
         with self.ensure:
             self.cur.execute(
-                "SELECT discord_id, total, platinum, gold, silver, bronze FROM Users ORDER BY total"
+                "SELECT discord_id, psn_id, total, platinum, gold, silver, bronze FROM Users",
             )
 
             results = []

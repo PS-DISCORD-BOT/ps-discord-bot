@@ -2,8 +2,7 @@ import logging
 import sys
 
 import lib.discord as discord
-
-TROPHY_CHECK = "platinum"
+from backend.shared_globals import TROPHY_CHECK
 
 
 class Roles:

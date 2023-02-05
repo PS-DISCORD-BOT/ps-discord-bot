@@ -5,7 +5,12 @@ from nacl.exceptions import BadSignatureError
 from nacl.signing import VerifyKey
 
 import lib.discord as discord
-from backend.shared_globals import get_db, get_queue
+from backend.shared_globals import (
+    TROPHY_CHECK,
+    TROPHY_COLOR_CODE,
+    get_db,
+    get_queue,
+)
 
 app = Flask(__name__)
 
@@ -13,6 +18,19 @@ CORS_HEADERS = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "PUT",
     "Access-Control-Allow-Headers": "Content-Type",
+}
+
+RANK_REPRESENTATION = {
+    1: ":first_place:",
+    2: ":second_place:",
+    3: ":third_place:",
+    4: ":four:",
+    5: ":five:",
+    6: ":six:",
+    7: ":seven:",
+    8: ":eight:",
+    9: ":nine:",
+    10: ":keycap_ten:",
 }
 
 # https://discord.com/developers/docs/interactions/receiving-and-responding#security-and-authorization
@@ -73,9 +91,28 @@ def execute_cmd_json(cmd_data, member_data):
                 "content": f"Queued PSN ID **{psn_id}** for updating, {tasks_left} task(s) pending in queue"
             }
         case "leaderboard":
-            leaderboard = get_db().get_leaderboard()
+            descending_users = sorted(
+                get_db().get_all(),
+                key=lambda item: item[TROPHY_CHECK],
+                reverse=True,
+            )
 
-            return {"embeds": []}
+            embed = {
+                "title": f"{TROPHY_CHECK.title()} Trophy Leaderboard",
+                "type": "rich",
+                "color": TROPHY_COLOR_CODE,
+                "fields": [],
+            }
+
+            for idx, user in enumerate(descending_users[:10]):
+                discord_id, psn_id = user["discord_id"], user["psn_id"]
+                trophies = user[TROPHY_CHECK]
+
+                value = f"{RANK_REPRESENTATION[idx + 1]} `{trophies}` - <@{discord_id}> (_{psn_id}_)"
+
+                embed["fields"].append({"name": "", "value": value})
+
+            return {"embeds": [embed]}
 
     raise ValueError(f"Invalid command {cmd}")
 
