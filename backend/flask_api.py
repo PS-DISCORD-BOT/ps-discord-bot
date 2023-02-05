@@ -105,10 +105,10 @@ def execute_cmd_json(cmd_data, member_data):
             }
 
             for idx, user in enumerate(descending_users[:10]):
-                discord_id, psn_id = user["discord_id"], user["psn_id"]
+                discord_id = user["discord_id"]
                 trophies = user[TROPHY_CHECK]
 
-                value = f"{RANK_REPRESENTATION[idx + 1]} `{trophies}` - <@{discord_id}> (_{psn_id}_)"
+                value = f"{RANK_REPRESENTATION[idx + 1]} `{trophies}` <@{discord_id}>"
 
                 embed["fields"].append({"name": "", "value": value})
 
