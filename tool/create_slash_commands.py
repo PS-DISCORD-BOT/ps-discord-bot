@@ -12,6 +12,7 @@ commands = (
         "description": "Authorize PSN ID",
     },
     {"name": "refresh", "description": "Forcefully refresh trophies"},
+    {"name": "rank", "description": "View rank and trophies"},
     {
         "name": "leaderboard",
         "description": "Display the leaderboard of top 10 users",
