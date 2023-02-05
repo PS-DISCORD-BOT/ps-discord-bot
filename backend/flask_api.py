@@ -1,10 +1,10 @@
 from functools import wraps
 
+import lib.discord as discord
 from flask import Flask, Response, abort, g, jsonify, request
 from nacl.exceptions import BadSignatureError
 from nacl.signing import VerifyKey
 
-import lib.discord as discord
 from backend.shared_globals import (
     TROPHY_CHECK,
     TROPHY_COLOR_CODE,

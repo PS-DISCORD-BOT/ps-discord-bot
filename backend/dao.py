@@ -99,7 +99,12 @@ class Database:
             results = []
 
             for result in self.cur.fetchall():
-                results.append({k: result[k] for k in result.keys()})
+                result_dict = {k: result[k] for k in result.keys()}
+
+                # Only add if all columns are non-null, i.e. trophies have been
+                # scraped atleast once
+                if all(result_dict.values()):
+                    results.append(result_dict)
 
             return results
 
