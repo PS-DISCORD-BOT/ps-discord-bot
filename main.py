@@ -3,7 +3,7 @@ import logging
 import signal
 import sys
 import threading
-from os import _exit
+from os import _exit, environ
 from queue import Queue
 
 import backend.flask_api as flask_api
@@ -17,6 +17,7 @@ CONFIG_DICT = {
     "public_key": "my-secret-key",
     "application_id": "my-application-id",
     "authorization_url": "https://localhost:443",
+    "port": 8000,
     "guilds": [],
     "refresh_interval_hours": 12,
     "roles_threshold": {
@@ -72,7 +73,12 @@ def main():
     )
     scraper_thread.start()
 
-    flask_api.run(config["public_key"], config["authorization_url"])
+    flask_api.run(
+        config["public_key"],
+        config["authorization_url"],
+        config["port"],
+        environ.get("FLASK_DEBUG") is not None,
+    )
 
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ import lib.discord as discord
 from flask import Flask, Response, abort, g, jsonify, request
 from nacl.exceptions import BadSignatureError
 from nacl.signing import VerifyKey
+from waitress import serve
 
 from backend.shared_globals import (
     TROPHY_CHECK,
@@ -166,7 +167,7 @@ def authorize():
     return {"user_id": user_id, "psn_name": conn.name}, 200, CORS_HEADERS
 
 
-def run(public_key, auth_url):
+def run(public_key, auth_url, port, debug=False):
     app.config["PUBLIC_KEY"] = public_key
     app.config["AUTHORIZATION_URL"] = auth_url
 
@@ -176,4 +177,7 @@ def run(public_key, auth_url):
             code, lambda error: ({"error": str(error)}, code)
         )
 
-    app.run()
+    if debug:
+        app.run(port=port)
+    else:
+        serve(app, port=port)
