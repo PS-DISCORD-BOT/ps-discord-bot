@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from lib.utils import dict_cls, perform_request
 
 API_BASE = "https://discord.com/api/v10"
+CDN_BASE = "https://cdn.discordapp.com"
 
 
 class InteractionType:

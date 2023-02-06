@@ -75,9 +75,18 @@ def find_and_rank(users, discord_id):
             return index + 1, user
 
 
+def get_avatar(member_user):
+    user_id, avatar = member_user["id"], member_user.get("avatar")
+
+    if avatar:
+        return f"{discord.CDN_BASE}/avatars/{user_id}/{avatar}.png"
+
+
 def execute_cmd_json(cmd_data, member_data):
+    member_user = member_data["user"]
+
     cmd = cmd_data["name"]
-    user_id = member_data["user"]["id"]
+    user_id = member_user["id"]
 
     match cmd:
         case "authorize":
@@ -122,7 +131,10 @@ def execute_cmd_json(cmd_data, member_data):
             discord_id = user["discord_id"]
 
             embed = {
-                "title": f"(#{rank}) <@{discord_id}>'s Trophies",
+                "author": {
+                    "name": f"{member_user['username']}#{member_user['discriminator']}'s Trophies",
+                    "icon_url": get_avatar(member_user),
+                },
                 "type": "rich",
                 "color": TROPHY_COLOR_CODE,
                 "fields": [],
@@ -132,6 +144,10 @@ def execute_cmd_json(cmd_data, member_data):
                 value = (
                     f"{representation} **{trophy.title()}** `{user[trophy]}`"
                 )
+
+                if trophy == TROPHY_CHECK:
+                    value += f" (**`#{rank}`**)"
+
                 embed["fields"].append({"name": "", "value": value})
 
             return {"embeds": [embed]}
