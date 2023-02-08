@@ -6,8 +6,12 @@ from nacl.signing import VerifyKey
 from waitress import serve
 
 import lib.discord as discord
-from backend.shared_globals import (TROPHY_CHECK, TROPHY_COLOR_CODE, get_db,
-                                    get_queue)
+from backend.shared_globals import (
+    TROPHY_CHECK,
+    TROPHY_COLOR_CODE,
+    get_db,
+    get_queue,
+)
 
 app = Flask(__name__)
 
@@ -82,6 +86,7 @@ def execute_cmd_json(cmd_data, member_data):
     member_user = member_data["user"]
 
     cmd = cmd_data["name"]
+    options = cmd_data.get("options")
     user_id = member_user["id"]
 
     match cmd:
@@ -115,6 +120,9 @@ def execute_cmd_json(cmd_data, member_data):
                 "content": f"Queued PSN ID **{psn_id}** for updating, {tasks_left} task(s) pending in queue"
             }
         case "rank":
+            if options:
+                user_id = options[0]["value"]
+
             if (
                 rank_user := find_and_rank(get_db().get_all(), user_id)
             ) is None:
