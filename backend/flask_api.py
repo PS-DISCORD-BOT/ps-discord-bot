@@ -8,8 +8,12 @@ from nacl.signing import VerifyKey
 from waitress import serve
 
 import lib.discord as discord
-from backend.shared_globals import (TROPHY_CHECK, TROPHY_COLOR_CODE, get_db,
-                                    get_queue)
+from backend.shared_globals import (
+    TROPHY_CHECK,
+    TROPHY_COLOR_CODE,
+    get_db,
+    get_queue,
+)
 from lib.scraper import fetch_trophies
 
 app = Flask(__name__)
@@ -104,6 +108,7 @@ def execute_cmd_json(cmd_data, member_data):
         case "authorize":
             return {
                 "content": "Click the button to authorize your account",
+                "flags": 1 << 6,  # EPHEMERAL
                 "components": [
                     {
                         "type": 1,  # Action bar
