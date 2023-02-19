@@ -13,6 +13,10 @@ commands = (
     },
     {"name": "refresh", "description": "Forcefully refresh trophies"},
     {
+        "name": "howtolink",
+        "description": "Instructions to link with PSNProfiles",
+    },
+    {
         "name": "rank",
         "description": "View rank and trophies",
         "options": [

@@ -105,7 +105,7 @@ def execute_cmd_json(cmd_data, member_data):
     match cmd:
         case "authorize":
             return {
-                "content": "**NOTE**: You must first enlist your account on https://psnprofiles.com by entering your name and hitting **Update User**. The following link can then be used to authorize with the bot:",
+                "content": "Click the button to authorize your account",
                 "components": [
                     {
                         "type": 1,  # Action bar
@@ -119,6 +119,10 @@ def execute_cmd_json(cmd_data, member_data):
                         ],
                     }
                 ],
+            }
+        case "howtolink":
+            return {
+                "content": "**NOTE**: You must first enlist your account on https://psnprofiles.com by entering your name and hitting **Update User**. Trophies can then be refreshed with the /refresh command"
             }
         case "refresh":
             if (psn_id := get_db().get_id_to_psn(user_id)) is None:
