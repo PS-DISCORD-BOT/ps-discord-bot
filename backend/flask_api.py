@@ -12,6 +12,7 @@ from backend.shared_globals import (
     get_db,
     get_queue,
 )
+from lib.scraper import fetch_trophies
 
 app = Flask(__name__)
 
@@ -65,6 +66,18 @@ def validate_discord_request(func, *args, **kwargs):
     return inner
 
 
+def check_psnprofile(psn_id):
+    try:
+        fetch_trophies(psn_id)
+        return True
+    except Exception:
+        logging.critical(
+            f"Failed to scrape trophies for PSN user {psn_id}",
+            exc_info=sys.exc_info(),
+        )
+        return False
+
+
 def rank_users(users):
     return sorted(users, key=lambda item: item[TROPHY_CHECK], reverse=True)
 
@@ -111,6 +124,11 @@ def execute_cmd_json(cmd_data, member_data):
             if (psn_id := get_db().get_id_to_psn(user_id)) is None:
                 return {
                     "content": "It seems you haven't authorized your account yet, try using the /authorize command first!"
+                }
+
+            if not check_psnprofile(psn_id):
+                return {
+                    "content": "Unable to fetch user on PSNProfiles, please check the /howtolink command"
                 }
 
             get_queue().put((user_id, psn_id))
@@ -225,6 +243,23 @@ def authorize():
     get_queue().put((user_id, conn.name))
 
     return {"user_id": user_id, "psn_name": conn.name}, 200, CORS_HEADERS
+
+
+@app.route("/check", methods=["GET"])
+def check():
+    if (user_id := request.args.get("user_id")) is None:
+        abort(400, "No user specified")
+
+    if (psn_id := get_db().get_id_to_psn(user_id)) is None:
+        abort(400, "PSN ID not linked")
+
+    if not check_psnprofile(psn_id):
+        abort(
+            400,
+            "Failed to fetch PSNProfiles user, check the /howtolink command on Discord",
+        )
+
+    return {}
 
 
 def run(public_key, auth_url, port, debug=False):
