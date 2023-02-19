@@ -1,3 +1,5 @@
+import logging
+import sys
 from functools import wraps
 
 from flask import Flask, Response, abort, g, jsonify, request
@@ -6,12 +8,8 @@ from nacl.signing import VerifyKey
 from waitress import serve
 
 import lib.discord as discord
-from backend.shared_globals import (
-    TROPHY_CHECK,
-    TROPHY_COLOR_CODE,
-    get_db,
-    get_queue,
-)
+from backend.shared_globals import (TROPHY_CHECK, TROPHY_COLOR_CODE, get_db,
+                                    get_queue)
 from lib.scraper import fetch_trophies
 
 app = Flask(__name__)
@@ -249,8 +247,11 @@ def authorize():
     return {"user_id": user_id, "psn_name": conn.name}, 200, CORS_HEADERS
 
 
-@app.route("/check", methods=["GET"])
+@app.route("/check", methods=["GET", "OPTIONS"])
 def check():
+    if request.method == "OPTIONS":
+        return {}, 200, CORS_HEADERS
+
     if (user_id := request.args.get("user_id")) is None:
         abort(400, "No user specified")
 
@@ -263,7 +264,7 @@ def check():
             "Failed to fetch PSNProfiles user, check the /howtolink command on Discord",
         )
 
-    return {}
+    return {}, 200, CORS_HEADERS
 
 
 def run(public_key, auth_url, port, debug=False):
@@ -273,7 +274,7 @@ def run(public_key, auth_url, port, debug=False):
     # JSON error handlers
     for code in [400, 404, 405, 500]:
         app.register_error_handler(
-            code, lambda error: ({"error": str(error)}, code)
+            code, lambda error: ({"error": str(error)}, code, CORS_HEADERS)
         )
 
     if debug:
