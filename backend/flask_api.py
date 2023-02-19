@@ -147,6 +147,7 @@ def execute_cmd_json(cmd_data, member_data):
         case "rank":
             if options:
                 user_id = options[0]["value"]
+                member_user = cmd_data["resolved"]["users"][user_id]
 
             if (
                 rank_user := find_and_rank(get_db().get_all(), user_id)
