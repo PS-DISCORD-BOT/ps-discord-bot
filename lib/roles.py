@@ -1,6 +1,6 @@
 import logging
 import sys
-
+from time import sleep
 import lib.discord as discord
 from backend.shared_globals import TROPHY_CHECK
 
@@ -67,6 +67,7 @@ class Roles:
                 self.update_user_roles(
                     roles_id, guild_id, user_id, max_higher_than
                 )
+                sleep(5)
             except Exception:
                 logging.warning(
                     f"Failed to update role {max_higher_than} for user {user_id} in guild {guild_id}",
