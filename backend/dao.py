@@ -42,7 +42,7 @@ class Database:
             self.cur.execute(
                 "CREATE TABLE IF NOT EXISTS Users"
                 "(discord_id TEXT UNIQUE NOT NULL PRIMARY KEY, psn_id TEXT NOT NULL,"
-                "total INT, platinum INT, gold INT, silver INT, bronze INT)"
+                "level INT, total INT, platinum INT, gold INT, silver INT, bronze INT)"
             )
 
     def set_id_to_psn(self, discord_id, psn_id):
@@ -68,9 +68,10 @@ class Database:
         with self.ensure:
             for id, trophies in id_to_trophies.items():
                 self.cur.execute(
-                    "UPDATE Users SET total = (?), platinum = (?), gold = (?), silver = (?), bronze = (?)"
+                    "UPDATE Users SET level = (?), total = (?), platinum = (?), gold = (?), silver = (?), bronze = (?)"
                     "WHERE discord_id = (?)",
                     (
+                        trophies["trophy_count_level"],
                         trophies["total"],
                         trophies["platinum"],
                         trophies["gold"],
@@ -93,7 +94,7 @@ class Database:
     def get_all(self):
         with self.ensure:
             self.cur.execute(
-                "SELECT discord_id, psn_id, total, platinum, gold, silver, bronze FROM Users",
+                "SELECT discord_id, psn_id, level, total, platinum, gold, silver, bronze FROM Users",
             )
 
             results = []
@@ -103,7 +104,7 @@ class Database:
 
                 # Only add if all columns are non-null, i.e. trophies have been
                 # scraped atleast once
-                if all(result_dict.values()):
+                if all(val is not None for val in result_dict.values()):
                     results.append(result_dict)
 
             return results

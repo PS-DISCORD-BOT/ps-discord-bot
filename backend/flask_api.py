@@ -80,8 +80,8 @@ def check_psnprofile(psn_id):
         return False
 
 
-def rank_users(users):
-    return sorted(users, key=lambda item: item[TROPHY_CHECK], reverse=True)
+def rank_users(users, check):
+    return sorted(users, key=lambda item: item[check], reverse=True)
 
 
 def find_and_rank(users, discord_id):
@@ -111,14 +111,20 @@ def split_n(arr, n):
     return out
 
 
-def get_leaderboard(page_no=0):
+def get_leaderboard(check=TROPHY_CHECK, page_no=0):
     BATCH = 10
 
-    descending_users = rank_users(get_db().get_all())
+    descending_users = rank_users(get_db().get_all(), check)
     pages = split_n(descending_users, BATCH)
 
+    title = (
+        f"{TROPHY_CHECK.title()} Trophy Leaderboard"
+        if check == TROPHY_CHECK
+        else "Points Leaderboard"
+    )
+
     embed = {
-        "title": f"{TROPHY_CHECK.title()} Trophy Leaderboard",
+        "title": title,
         "type": "rich",
         "color": TROPHY_COLOR_CODE,
         "fields": [],
@@ -129,7 +135,7 @@ def get_leaderboard(page_no=0):
 
     for idx, user in enumerate(pages[page_no]):
         discord_id = user["discord_id"]
-        trophies = user[TROPHY_CHECK]
+        trophies = user[check]
 
         idx = (page_no * BATCH) + idx + 1
         rank_repr = (
@@ -150,14 +156,14 @@ def get_leaderboard(page_no=0):
                         "type": 2,
                         "emoji": {"id": "1067941105598988410", "name": "AL"},
                         "style": 1,
-                        "custom_id": f"left_{page_no}",
+                        "custom_id": f"left_{page_no}_{check}",
                         "disabled": page_no == 0,
                     },
                     {
                         "type": 2,
                         "emoji": {"id": "1067941108568567818", "name": "AR"},
                         "style": 1,
-                        "custom_id": f"right_{page_no}",
+                        "custom_id": f"right_{page_no}_{check}",
                         "disabled": (page_no + 1) == len(pages),
                     },
                 ],
@@ -252,20 +258,22 @@ def execute_cmd_json(cmd_data, member_data):
             return {"embeds": [embed]}
         case "leaderboard":
             return get_leaderboard()
+        case "leaderboard_points":
+            return get_leaderboard("level")
 
     raise ValueError(f"Invalid command {cmd}")
 
 
 def execute_component_json(data):
-    action, page = data["custom_id"].split("_")
+    action, page, check = data["custom_id"].split("_")
 
     page = int(page)
 
     match action:
         case "right":
-            return get_leaderboard(page + 1)
+            return get_leaderboard(check, page + 1)
         case "left":
-            return get_leaderboard(page - 1)
+            return get_leaderboard(check, page - 1)
 
     raise ValueError("Invalid event")
 
