@@ -97,6 +97,75 @@ def get_avatar(member_user):
         return f"{discord.CDN_BASE}/avatars/{user_id}/{avatar}.png"
 
 
+def split_n(arr, n):
+    out = []
+    prev = 0
+
+    while prev < len(arr):
+        out.append(arr[prev : prev + n])
+        prev = prev + n
+
+    if (diff := len(arr) - sum(len(out_arr) for out_arr in out)) > 0:
+        out.append(arr[-diff:])
+
+    return out
+
+
+def get_leaderboard(page_no=0):
+    BATCH = 10
+
+    descending_users = rank_users(get_db().get_all())
+    pages = split_n(descending_users, BATCH)
+
+    embed = {
+        "title": f"{TROPHY_CHECK.title()} Trophy Leaderboard",
+        "type": "rich",
+        "color": TROPHY_COLOR_CODE,
+        "fields": [],
+        "footer": {
+            "text": f"Page {page_no + 1} of {len(pages)}",
+        },
+    }
+
+    for idx, user in enumerate(pages[page_no]):
+        discord_id = user["discord_id"]
+        trophies = user[TROPHY_CHECK]
+
+        idx = (page_no * BATCH) + idx + 1
+        rank_repr = (
+            RANK_REPRESENTATION[idx] if idx <= BATCH else f"_**#{idx}**_"
+        )
+
+        value = f"{rank_repr} `{trophies}` <@{discord_id}>"
+
+        embed["fields"].append({"name": "", "value": value})
+
+    return {
+        "embeds": [embed],
+        "components": [
+            {
+                "type": 1,
+                "components": [
+                    {
+                        "type": 2,
+                        "emoji": {"id": "1067941105598988410", "name": "AL"},
+                        "style": 1,
+                        "custom_id": f"left_{page_no}",
+                        "disabled": page_no == 0,
+                    },
+                    {
+                        "type": 2,
+                        "emoji": {"id": "1067941108568567818", "name": "AR"},
+                        "style": 1,
+                        "custom_id": f"right_{page_no}",
+                        "disabled": (page_no + 1) == len(pages),
+                    },
+                ],
+            }
+        ],
+    }
+
+
 def execute_cmd_json(cmd_data, member_data):
     member_user = member_data["user"]
 
@@ -182,26 +251,23 @@ def execute_cmd_json(cmd_data, member_data):
 
             return {"embeds": [embed]}
         case "leaderboard":
-            descending_users = rank_users(get_db().get_all())
-
-            embed = {
-                "title": f"{TROPHY_CHECK.title()} Trophy Leaderboard",
-                "type": "rich",
-                "color": TROPHY_COLOR_CODE,
-                "fields": [],
-            }
-
-            for idx, user in enumerate(descending_users[:10]):
-                discord_id = user["discord_id"]
-                trophies = user[TROPHY_CHECK]
-
-                value = f"{RANK_REPRESENTATION[idx + 1]} `{trophies}` <@{discord_id}>"
-
-                embed["fields"].append({"name": "", "value": value})
-
-            return {"embeds": [embed]}
+            return get_leaderboard()
 
     raise ValueError(f"Invalid command {cmd}")
+
+
+def execute_component_json(data):
+    action, page = data["custom_id"].split("_")
+
+    page = int(page)
+
+    match action:
+        case "right":
+            return get_leaderboard(page + 1)
+        case "left":
+            return get_leaderboard(page - 1)
+
+    raise ValueError("Invalid event")
 
 
 @app.route("/interactions", methods=["POST"])
@@ -217,6 +283,13 @@ def slash_command():
 
             # Disable any mentions
             data["allowed_mentions"] = {"parse": []}
+
+            return {
+                "type": discord.InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+                "data": data,
+            }
+        case discord.InteractionType.MESSAGE_COMPONENT:
+            data = execute_component_json(request.json["data"])
 
             return {
                 "type": discord.InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
