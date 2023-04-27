@@ -257,9 +257,9 @@ def execute_cmd_json(cmd_data, member_data):
 
             return {"embeds": [embed]}
         case "leaderboard":
-            return get_leaderboard()
-        case "leaderboard_points":
             return get_leaderboard("level")
+        case "platinum_leaderboard":
+            return get_leaderboard()
 
     raise ValueError(f"Invalid command {cmd}")
 
