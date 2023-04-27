@@ -31,11 +31,11 @@ commands = (
     },
     {
         "name": "leaderboard",
-        "description": "Display the leaderboard of user trophies",
+        "description": "Display the leaderboard of user points",
     },
     {
-        "name": "leaderboard_points",
-        "description": "Display the leaderboard of user points",
+        "name": "platinum_leaderboard",
+        "description": "Display the leaderboard of user trophies",
     },
 )
 

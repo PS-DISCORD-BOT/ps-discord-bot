@@ -106,3 +106,19 @@ class API:
         return self.perform(
             f"/applications/{application_id}/commands", "POST", data
         )
+
+    def get_slash_commands(self, application_id):
+        return self.perform(f"/applications/{application_id}/commands", "GET")
+
+    def delete_slash_command(self, application_id, command_id):
+        return self.perform(
+            f"/applications/{application_id}/commands/{command_id}", "DELETE"
+        )
+
+    def delete_slash_command_by_name(self, application_id, command_name):
+        for command in self.get_slash_commands(application_id):
+            if command["name"] == command_name:
+                self.delete_slash_command(application_id, command["id"])
+                return True
+
+        return False
