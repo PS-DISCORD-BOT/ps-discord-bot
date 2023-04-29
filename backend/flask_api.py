@@ -300,7 +300,7 @@ def slash_command():
             data = execute_component_json(request.json["data"])
 
             return {
-                "type": discord.InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+                "type": discord.InteractionCallbackType.UPDATE_MESSAGE,
                 "data": data,
             }
 

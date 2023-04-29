@@ -16,6 +16,7 @@ class InteractionType:
 class InteractionCallbackType:
     PONG = 1
     CHANNEL_MESSAGE_WITH_SOURCE = 4
+    UPDATE_MESSAGE = 7
 
 
 @dataclass
