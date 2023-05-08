@@ -85,7 +85,7 @@ def rank_users(users, check):
 
 
 def find_and_rank(users, discord_id):
-    for index, user in enumerate(rank_users(users)):
+    for index, user in enumerate(rank_users(users, TROPHY_CHECK)):
         if user["discord_id"] == discord_id:
             return index + 1, user
 
