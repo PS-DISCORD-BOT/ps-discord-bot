@@ -64,6 +64,7 @@ def main():
         target=scrape_worker.run,
         args=(
             config["token"],
+            config["ps_token"],
             config["refresh_interval_hours"],
             config["roles_threshold"],
             config["guilds"],

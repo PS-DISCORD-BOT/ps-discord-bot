@@ -1,11 +1,6 @@
-import sys
 from dataclasses import dataclass
 
-from bs4 import BeautifulSoup
-
-from lib.utils import perform_request
-
-BASE_URL = "https://psnprofiles.com"
+from psnawp_api import PSNAWP
 
 
 @dataclass
@@ -18,30 +13,27 @@ class Trophies:
     bronze: int
 
 
-def scrape_trophies(content: str):
-    soup = BeautifulSoup(content, "html.parser")
+def trophy_fetcher(token: str):
+    psnawp = PSNAWP(token)
 
-    user_bar = soup.find(id="user-bar")
+    def fetch_trophy(user: str):
+        user = psnawp.user(online_id=user)
+        summary = user.trophy_summary()
 
-    def find_count(class_):
-        result = user_bar.find("li", class_=class_).text.strip()
-        # '1,024' -> 1024
-        return int(result.replace(",", ""))
+        return Trophies(
+            trophy_count_level=summary.trophy_level,
+            total=sum(
+                [
+                    summary.earned_trophies.platinum,
+                    summary.earned_trophies.gold,
+                    summary.earned_trophies.silver,
+                    summary.earned_trophies.bronze,
+                ]
+            ),
+            platinum=summary.earned_trophies.platinum,
+            gold=summary.earned_trophies.gold,
+            silver=summary.earned_trophies.silver,
+            bronze=summary.earned_trophies.bronze,
+        )
 
-    return Trophies(
-        trophy_count_level=find_count("icon-sprite level"),
-        total=find_count("total"),
-        platinum=find_count("platinum"),
-        gold=find_count("gold"),
-        silver=find_count("silver"),
-        bronze=find_count("bronze"),
-    )
-
-
-def fetch_trophies(user: str):
-    content = perform_request(BASE_URL + f"/{user}")
-    return scrape_trophies(content)
-
-
-if __name__ == "__main__":
-    print(fetch_trophies(sys.argv[1]))
+    return fetch_trophy
