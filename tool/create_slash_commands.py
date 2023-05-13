@@ -1,8 +1,8 @@
 import json
+from time import sleep
 
 import lib.discord as discord
 from main import CONFIG_FILE
-from time import sleep
 
 with open(CONFIG_FILE, "r") as f:
     config = json.loads(f.read())

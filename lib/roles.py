@@ -1,6 +1,7 @@
 import logging
 import sys
 from time import sleep
+
 import lib.discord as discord
 from backend.shared_globals import TROPHY_CHECK
 
